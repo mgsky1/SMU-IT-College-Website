@@ -1,0 +1,64 @@
+<?php
+/*图片文件上传类*/
+$uploadPage = "addPhotoNewsAdmin.php";
+$dir = dirname(dirname(realpath(__FILE__))) . DIRECTORY_SEPARATOR."UploadFiles".DIRECTORY_SEPARATOR;
+$maxUploadSize = ini_get('upload_max_filesize');
+
+$err_msg = false;
+if(!isset($_FILES['upfile'])){
+    $err_msg = "表单不完全！";
+} else{
+    $fileImg = $_FILES['upfile'];
+}
+if(!in_array($fileImg['type'],array('image/jpeg','image/pjpeg','image/png','image/jpg'))){
+	echo $fileImg['type'];
+	//$err_msg = "只允许上传 .png 或 .jpg 图片.请重新<a href='{$uploadPage}'>上传</a>\n";
+	//echo $err_msg;
+    return;
+}
+if($fileImg['error'] == 2)
+{ 
+
+  $err_msg = "文件超过最大上传限制:$maxUploadSize 请重新<a href='{$uploadPage}'>上传\n";
+  echo $err_msg;
+  return;
+	
+}
+switch($fileImg['error']){
+    case UPLOAD_ERR_INI_SIZE:
+        $err_msg = "文件超过最大上传限制:$maxUploadSize \n";
+        break;
+    case UPLOAD_ERR_PARTIAL:
+        $err_msg = "文件上传不完全.请重新<a href='{$uploadPage}'>上传</a>\n";
+        break;
+    case UPLOAD_ERR_NO_FILE:
+        $err_msg = "没有选择文件.请重新<a href='{$uploadPage}'>上传</a>\n";
+        break;
+    case UPLOAD_ERR_FORM_SIZE:
+        $err_msg = "文件超过页面最大上传限制.";
+        break;
+    case UPLOAD_ERR_CANT_WRITE:
+        $err_msg = "文件写入失败.请重新<a href='{$uploadPage}'>上传</a>\n";
+        break;
+    case UPLOAD_ERR_NO_TMP_DIR:
+        $err_msg = "没有临时文件夹.请重新<a href='{$uploadPage}'>上传</a>\n";
+        break;
+    case UPLOAD_ERR_OK:
+        break;
+    default:
+    	$err_msg = "未知错误.请重新<a href='{$uploadPage}'>上传</a>\n";
+}
+
+
+if(!$err_msg){
+	if(!move_uploaded_file($fileImg['tmp_name'], $dir.$fileImg['name'])){
+		$err_msg = "移动文件失败.请重新<a href='{$uploadPage}'>上传</a>\n";
+	}
+}
+if($err_msg){
+	echo $err_msg;
+}else{
+	$_SESSION["DefaultPicUrl"] = "upLoadFiles/".$fileImg['name'];
+    echo "<script>alert('上传成功');history.go(-1)</script>";
+}
+?>

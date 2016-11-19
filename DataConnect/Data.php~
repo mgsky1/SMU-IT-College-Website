@@ -1,0 +1,3 @@
+﻿<?php
+   $Data= new mysqli("127.0.0.1:3306","root","mysql","xxgc");/*PHP7 新特性 支持ipv6 使用localhost会降低性能*/
+?>
